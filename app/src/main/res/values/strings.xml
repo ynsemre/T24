@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">T24</string>
+
+    <!-- CustomAlertDialog Strings -->
+    <string name="AlertDialog_INFO_TITLE">Bilgi</string>
+    <string name="AlertDialog_ERROR">Hata</string>
+    <string name="AlertDialog_WARNING">Uyarı</string>
+    <string name="AlertDialog_OKButton">Tamam</string>
+    <string name="AlertDialog_CANCEL_BUTTON">İptal</string>
+    <string name="AlertDialog_CONNECTION_ERROR">Bağlantı Hatası!</string>
+    <string name="AlertDialog_NETWORK_CONNECTION_ERROR">İnternet bağlantınızı kontrol ediniz!</string>
+    <string name="AlertDialog_YES">Evet</string>
+    <string name="AlertDialog_NO">Hayır</string>
 </resources>
