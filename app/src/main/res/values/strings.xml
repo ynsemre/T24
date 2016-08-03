@@ -11,4 +11,7 @@
     <string name="AlertDialog_NETWORK_CONNECTION_ERROR">İnternet bağlantınızı kontrol ediniz!</string>
     <string name="AlertDialog_YES">Evet</string>
     <string name="AlertDialog_NO">Hayır</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
