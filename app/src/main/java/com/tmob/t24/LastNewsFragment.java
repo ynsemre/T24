@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.squareup.picasso.Picasso;
 
 public class LastNewsFragment extends BaseFragment {
 
@@ -23,21 +24,19 @@ public class LastNewsFragment extends BaseFragment {
         imgLastNewsImage = (ImageView) v.findViewById(R.id.img_last_news);
         txtLastNewsHeader = (TextView) v.findViewById(R.id.txt_last_news_title);
 
-        return v;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         Bundle bundle = getArguments();
         String newsTitle = bundle.getString("newsTitle");
         String imageUrl = bundle.getString("imageUrl");
+        imageUrl = "http:" + imageUrl;
+        setLastNewsInfo(newsTitle, imageUrl);
+
+        return v;
     }
 
     private void setLastNewsInfo(String newsTitle, String imageUrl) {
         txtLastNewsHeader.setText(newsTitle);
-        ImageLoader.getInstance().displayImage(imageUrl, imgLastNewsImage);
+        Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.placeholder) .into(imgLastNewsImage);
+        //ImageLoader.getInstance().displayImage(imageUrl, imgLastNewsImage);
     }
 
 }

@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ListView;
 
+import com.tmob.t24.adapter.NewsAdapter;
 import com.tmob.t24.model.NewsObject;
 import com.tmob.t24.model.NewsResult;
 import com.tmob.t24.utils.BaseActivity;
@@ -24,6 +25,7 @@ import java.util.StringTokenizer;
 public class MainActivity extends BaseActivity {
 
     private WebServiceRequestAsync requestAsync;
+    private NewsAdapter newsAdapter;
 
     LastNewsPagerAdapter lastNewsPagerAdapter;
     //NewsAdapter adapter;
@@ -53,12 +55,13 @@ public class MainActivity extends BaseActivity {
         lastNewsPager = (ViewPager) headerView.findViewById(R.id.last_news_view_pager);
 
         if (cd.isConnectingToInternet()) {
-            getNews(1);
+            getNews(1, false);
+            getNews(newsPageIndex, false);
         }
     }
 
-    private void getNews(int pageIndex) {
-        requestAsync = new WebServiceRequestAsync(this, new NewsResponseListener(pageIndex));
+    private void getNews(int pageIndex, boolean isRefreshing) {
+        requestAsync = new WebServiceRequestAsync(this, new NewsResponseListener(pageIndex, isRefreshing));
         Bundle newsBundle = new Bundle();
         newsBundle.putString("paging", String.valueOf(pageIndex));
         requestAsync.setParams(newsBundle);
@@ -69,9 +72,11 @@ public class MainActivity extends BaseActivity {
     private class NewsResponseListener implements WebServiceResponseListener {
 
         private int pageIndex;
+        private boolean isRefreshing;
 
-        public NewsResponseListener(int pageIndex) {
+        public NewsResponseListener(int pageIndex, boolean isRefreshing) {
             this.pageIndex = pageIndex;
+            this.isRefreshing = isRefreshing;
         }
 
         @Override
@@ -81,18 +86,41 @@ public class MainActivity extends BaseActivity {
                 if (newsResult.getResult()) {
                     if (pageIndex == 1) {
                         lastNewsList = newsResult.getData();
-/*                        lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
+                        lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
                         lastNewsPager.setAdapter(lastNewsPagerAdapter);
                         circlePageIndicator.setViewPager(lastNewsPager);
-                        newsListView.addHeaderView(headerView, null, false);*/
+                        newsListView.addHeaderView(headerView, null, false);
                     } else {
-
+                        if (!isRefreshing) {
+                            if (pageIndex == 2) {
+                                newsList = newsResult.getData();
+                                newsAdapter = new NewsAdapter(MainActivity.this, newsList);
+                                newsListView.setAdapter(newsAdapter);
+                            } else {
+                                newsList.addAll(newsResult.getData());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        newsAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        }
                     }
                 } else {
 
                 }
             }
         }
+    }
+
+    private Bundle createPagerBundle(int position) {
+        Bundle pagerBundle = new Bundle();
+        String newsTitle = lastNewsList.get(position).getTitle();
+        String imageUrl = lastNewsList.get(position).getImages().getPage();
+        pagerBundle.putString("newsTitle", newsTitle);
+        pagerBundle.putString("imageUrl", imageUrl);
+        return pagerBundle;
     }
 
     private class LastNewsPagerAdapter extends FragmentPagerAdapter {
@@ -104,14 +132,14 @@ public class MainActivity extends BaseActivity {
         @Override
         public Fragment getItem(int position) {
             LastNewsFragment lastNewsFragment = new LastNewsFragment();
-/*            Bundle bundle = pagerIntent(position);
-            lastNewsFragment.setArguments(bundle);*/
+            Bundle bundle = createPagerBundle(position);
+            lastNewsFragment.setArguments(bundle);
             return lastNewsFragment;
         }
 
         @Override
         public int getCount() {
-            return 0;
+            return lastNewsList.size();
         }
     }
 }

@@ -10,22 +10,21 @@
 
     <style name="LastNewsHeaderTextViewStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:layout_marginLeft">5dp</item>
         <item name="android:layout_marginRight">5dp</item>
         <item name="android:layout_marginTop">15dp</item>
-        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColor">@android:color/black</item>
         <item name="android:textSize">17sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="LastNewsHeaderLayoutStyle">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:layout_gravity">bottom|left</item>
-        <item name="android:background">@color/white</item>
+        <item name="android:background">@color/transparentColorPrimary</item>
         <item name="android:paddingBottom">10dp</item>
     </style>
 
