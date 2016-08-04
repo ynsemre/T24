@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".category_news.CategoryNewsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,7 +21,9 @@
         </activity>
         <activity
             android:name=".SplashScreenActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <!--<activity android:name=".category_news.CategoryNewsActivity" />-->
+        <activity android:name=".news_details.NewsDetailsActivity"></activity>
     </application>
 
 </manifest>

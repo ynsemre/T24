@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="250dp">
 
-    <android.support.v4.view.ViewPager
+    <com.tmob.t24.view.CustomViewPager
         android:id="@+id/last_news_view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
