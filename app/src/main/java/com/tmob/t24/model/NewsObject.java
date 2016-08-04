@@ -1,5 +1,7 @@
 package com.tmob.t24.model;
 
+import android.view.View;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -32,6 +34,8 @@ public class NewsObject {
     @SerializedName("publishingDate")
     @Expose
     private String publishingDate;
+
+    private Integer loadingVisibility = View.GONE;
 
     /**
      * @return The id
@@ -157,6 +161,14 @@ public class NewsObject {
      */
     public void setPublishingDate(String publishingDate) {
         this.publishingDate = publishingDate;
+    }
+
+    public Integer getLoadingVisibility() {
+        return loadingVisibility;
+    }
+
+    public void setLoadingVisibility(Integer loadingVisibility) {
+        this.loadingVisibility = loadingVisibility;
     }
 
 }

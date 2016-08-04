@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.tmob.t24.adapter.NewsAdapter;
@@ -48,6 +49,30 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         newsListView = (ListView) findViewById(R.id.news_list_view);
+        newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (canGetMoreNews) {
+                    final int lastItem = firstVisibleItem + visibleItemCount;
+                    if (lastItem == totalItemCount) {
+                        if (newsPreLast != lastItem) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    newsPreLast = lastItem;
+                                    getNews(newsPageIndex + 1, false);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        });
 
         LayoutInflater layoutInflater = getLayoutInflater();
         headerView = layoutInflater.inflate(R.layout.header_news_list_header, newsListView, false);
@@ -65,7 +90,8 @@ public class MainActivity extends BaseActivity {
         Bundle newsBundle = new Bundle();
         newsBundle.putString("paging", String.valueOf(pageIndex));
         requestAsync.setParams(newsBundle);
-        requestAsync.showDialog(true);
+        if (pageIndex <= 2)
+            requestAsync.showDialog(true);
         requestAsync.execute(WebServiceRequestAsync.GET_STORIES_LIST);
     }
 
@@ -91,13 +117,23 @@ public class MainActivity extends BaseActivity {
                         circlePageIndicator.setViewPager(lastNewsPager);
                         newsListView.addHeaderView(headerView, null, false);
                     } else {
+                        int totalPages = newsResult.getPaging().getPages();
+                        if (pageIndex < totalPages) {
+                            newsPageIndex = pageIndex;
+                            canGetMoreNews = true;
+                        }
                         if (!isRefreshing) {
                             if (pageIndex == 2) {
                                 newsList = newsResult.getData();
+                                if (canGetMoreNews)
+                                    newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
                                 newsAdapter = new NewsAdapter(MainActivity.this, newsList);
                                 newsListView.setAdapter(newsAdapter);
                             } else {
+                                newsList.get(newsList.size() - 1).setLoadingVisibility(View.GONE);
                                 newsList.addAll(newsResult.getData());
+                                if (canGetMoreNews)
+                                    newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {

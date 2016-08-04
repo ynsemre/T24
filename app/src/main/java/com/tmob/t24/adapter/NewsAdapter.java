@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,6 +54,7 @@ public class NewsAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.item_news_list, parent, false);
             viewHolder = new ViewHolder();
+            viewHolder.pnlLoading = (FrameLayout) convertView.findViewById(R.id.pnl_news_loading);
             viewHolder.txtTitle = (TextView) convertView.findViewById(R.id.txt_item_news_title);
             viewHolder.imgNewsImage = (ImageView)convertView.findViewById(R.id.img_item_news_image);
             convertView.setTag(viewHolder);
@@ -66,10 +68,13 @@ public class NewsAdapter extends BaseAdapter {
         //ImageLoader.getInstance().displayImage(imagePath, viewHolder.imgNewsImage);
         viewHolder.txtTitle.setText(newsObject.getTitle());
 
+        viewHolder.pnlLoading.setVisibility(newsObject.getLoadingVisibility());
+
         return convertView;
     }
 
     private class ViewHolder {
+        FrameLayout pnlLoading;
         TextView txtTitle;
         ImageView imgNewsImage;
     }
