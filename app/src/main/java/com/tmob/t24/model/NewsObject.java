@@ -1,11 +1,13 @@
 package com.tmob.t24.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.View;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class NewsObject {
+public class NewsObject implements Parcelable {
 
     @SerializedName("id")
     @Expose
@@ -19,6 +21,12 @@ public class NewsObject {
     @SerializedName("alias")
     @Expose
     private String alias;
+    @SerializedName("text")
+    @Expose
+    private String text;
+    @SerializedName("author")
+    @Expose
+    private Author author;
     @SerializedName("urls")
     @Expose
     private Urls urls;
@@ -171,4 +179,32 @@ public class NewsObject {
         this.loadingVisibility = loadingVisibility;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+    }
+
+    public NewsObject() {
+    }
+
+    protected NewsObject(Parcel in) {
+        this.id = in.readString();
+    }
+
+    public static final Parcelable.Creator<NewsObject> CREATOR = new Parcelable.Creator<NewsObject>() {
+        @Override
+        public NewsObject createFromParcel(Parcel source) {
+            return new NewsObject(source);
+        }
+
+        @Override
+        public NewsObject[] newArray(int size) {
+            return new NewsObject[size];
+        }
+    };
 }
