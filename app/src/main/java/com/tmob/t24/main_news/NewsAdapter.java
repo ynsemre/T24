@@ -62,7 +62,7 @@ public class NewsAdapter extends BaseAdapter {
         }
 
         NewsObject newsObject = newsList.get(position);
-        String imagePath = "http:" + newsObject.getImages().getList();
+        String imagePath = "http:" + newsObject.getImages().getBox();
         Picasso.with(context).load(imagePath).placeholder(R.drawable.placeholder) .into(viewHolder.imgNewsImage);
         viewHolder.txtTitle.setText(newsObject.getTitle());
 
