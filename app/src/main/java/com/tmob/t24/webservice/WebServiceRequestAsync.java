@@ -12,9 +12,11 @@ public class WebServiceRequestAsync extends AsyncTask<Integer, Void, String> {
 
     public static final int GET_STORIES_LIST = 0;
     public static final int GET_CATEGORY_STORIES_LIST = 1;
+    public static final int GET_CATEGORY_STORY_DETAILS = 2;
 
     private final String REQUEST_PAGING = "paging";
     private final String REQUEST_CATEGORY = "category";
+    private final String REQUEST_STORY = "story";
 
     ProgressDialog serviceProgress;
 
@@ -91,7 +93,9 @@ public class WebServiceRequestAsync extends AsyncTask<Integer, Void, String> {
             case GET_STORIES_LIST:
                 return sendGetStoriesListRequest();
             case GET_CATEGORY_STORIES_LIST:
-                return sendGetCategorySoriesListRequest();
+                return sendGetCategoryStoriesListRequest();
+            case GET_CATEGORY_STORY_DETAILS:
+                return sendGetCategoryStoryDetailsRequest();
         }
 
         return "";
@@ -130,10 +134,21 @@ public class WebServiceRequestAsync extends AsyncTask<Integer, Void, String> {
         return null;
     }
 
-    public String sendGetCategorySoriesListRequest() {
+    public String sendGetCategoryStoriesListRequest() {
         try {
             ArrayList<ParcelableNameValuePair> params = new ArrayList<ParcelableNameValuePair>();
             params.add(new ParcelableNameValuePair(REQUEST_CATEGORY, bundle.getString(REQUEST_CATEGORY)));
+            return ServiceClient.SendHttpGet(ServiceModel.GET_STORIES_URL, params);
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+
+    public String sendGetCategoryStoryDetailsRequest() {
+        try {
+            ArrayList<ParcelableNameValuePair> params = new ArrayList<ParcelableNameValuePair>();
+            params.add(new ParcelableNameValuePair(REQUEST_STORY, bundle.getString(REQUEST_STORY)));
             return ServiceClient.SendHttpGet(ServiceModel.GET_STORIES_URL, params);
         } catch (Exception e) {
 

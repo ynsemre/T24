@@ -11,7 +11,7 @@ public class NewsResult {
 
     @SerializedName("data")
     @Expose
-    private List<NewsObject> data = new ArrayList<NewsObject>();
+    private ArrayList<NewsObject> data = new ArrayList<NewsObject>();
     @SerializedName("paging")
     @Expose
     private Paging paging;
@@ -22,14 +22,14 @@ public class NewsResult {
     /**
      * @return The data
      */
-    public List<NewsObject> getData() {
+    public ArrayList<NewsObject> getData() {
         return data;
     }
 
     /**
      * @param data The data
      */
-    public void setData(List<NewsObject> data) {
+    public void setData(ArrayList<NewsObject> data) {
         this.data = data;
     }
 

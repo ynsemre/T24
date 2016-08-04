@@ -45,6 +45,8 @@ public class NewsObject implements Parcelable {
 
     private Integer loadingVisibility = View.GONE;
 
+    
+
     /**
      * @return The id
      */

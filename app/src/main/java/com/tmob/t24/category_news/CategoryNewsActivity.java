@@ -1,5 +1,6 @@
 package com.tmob.t24.category_news;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -9,10 +10,12 @@ import android.widget.ListView;
 import com.tmob.t24.R;
 import com.tmob.t24.model.NewsObject;
 import com.tmob.t24.model.NewsResult;
+import com.tmob.t24.news_details.NewsDetailsActivity;
 import com.tmob.t24.utils.BaseActivity;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryNewsActivity extends BaseActivity {
@@ -22,7 +25,7 @@ public class CategoryNewsActivity extends BaseActivity {
 
     private ListView categoryNewsListView;
 
-    private List<NewsObject> categoryNewsList;
+    private ArrayList<NewsObject> categoryNewsList;
     private String choosenCategoryId;
 
     @Override
@@ -69,7 +72,10 @@ public class CategoryNewsActivity extends BaseActivity {
     private AdapterView.OnItemClickListener categoryNewsListItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+            Intent choosenNewsIntent = new Intent(CategoryNewsActivity.this, NewsDetailsActivity.class);
+            choosenNewsIntent.putExtra("position", position);
+            choosenNewsIntent.putParcelableArrayListExtra("categoryNewsIdList", categoryNewsList);
+            startActivity(choosenNewsIntent);
         }
     };
 }
