@@ -1,11 +1,11 @@
 package com.tmob.t24;
 
+import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,15 +21,13 @@ import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
 import java.util.List;
-import java.util.StringTokenizer;
 
 public class MainActivity extends BaseActivity {
 
     private WebServiceRequestAsync requestAsync;
+    LastNewsPagerAdapter lastNewsPagerAdapter;
     private NewsAdapter newsAdapter;
 
-    LastNewsPagerAdapter lastNewsPagerAdapter;
-    //NewsAdapter adapter;
     private List<NewsObject> lastNewsList;
     private List<NewsObject> newsList;
 
@@ -42,6 +40,8 @@ public class MainActivity extends BaseActivity {
     private boolean canGetMoreNews = false;
     private int newsPreLast;
     private int newsPageIndex = 2;
+    private int currentLastNewsPage = 0;
+    private Handler lastNewsPageHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +78,7 @@ public class MainActivity extends BaseActivity {
         headerView = layoutInflater.inflate(R.layout.header_news_list_header, newsListView, false);
         circlePageIndicator = (CirclePageIndicator) headerView.findViewById(R.id.last_news_circle_indicator);
         lastNewsPager = (ViewPager) headerView.findViewById(R.id.last_news_view_pager);
+        lastNewsPager.addOnPageChangeListener(lastNewsPageChangeListener);
 
         if (cd.isConnectingToInternet()) {
             getNews(1, false);
@@ -129,6 +130,7 @@ public class MainActivity extends BaseActivity {
                                     newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
                                 newsAdapter = new NewsAdapter(MainActivity.this, newsList);
                                 newsListView.setAdapter(newsAdapter);
+                                lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
                             } else {
                                 newsList.get(newsList.size() - 1).setLoadingVisibility(View.GONE);
                                 newsList.addAll(newsResult.getData());
@@ -149,6 +151,17 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
+
+    private Runnable lastNewsPageRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (currentLastNewsPage < 9)
+                lastNewsPager.setCurrentItem(currentLastNewsPage + 1, true);
+            else
+                lastNewsPager.setCurrentItem(0);
+            lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
+        }
+    };
 
     private Bundle createPagerBundle(int position) {
         Bundle pagerBundle = new Bundle();
@@ -178,4 +191,21 @@ public class MainActivity extends BaseActivity {
             return lastNewsList.size();
         }
     }
+
+    private ViewPager.OnPageChangeListener lastNewsPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            currentLastNewsPage = position;
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    };
 }

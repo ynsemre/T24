@@ -9,7 +9,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.squareup.picasso.Picasso;
 import com.tmob.t24.R;
 import com.tmob.t24.model.NewsObject;
@@ -65,7 +64,6 @@ public class NewsAdapter extends BaseAdapter {
         NewsObject newsObject = newsList.get(position);
         String imagePath = "http:" + newsObject.getImages().getList();
         Picasso.with(context).load(imagePath).placeholder(R.drawable.placeholder) .into(viewHolder.imgNewsImage);
-        //ImageLoader.getInstance().displayImage(imagePath, viewHolder.imgNewsImage);
         viewHolder.txtTitle.setText(newsObject.getTitle());
 
         viewHolder.pnlLoading.setVisibility(newsObject.getLoadingVisibility());

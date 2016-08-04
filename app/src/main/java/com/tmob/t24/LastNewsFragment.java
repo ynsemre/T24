@@ -36,7 +36,6 @@ public class LastNewsFragment extends BaseFragment {
     private void setLastNewsInfo(String newsTitle, String imageUrl) {
         txtLastNewsHeader.setText(newsTitle);
         Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.placeholder) .into(imgLastNewsImage);
-        //ImageLoader.getInstance().displayImage(imageUrl, imgLastNewsImage);
     }
 
 }
