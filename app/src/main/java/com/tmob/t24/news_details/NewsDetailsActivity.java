@@ -3,7 +3,6 @@ package com.tmob.t24.news_details;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 
 import com.tmob.t24.R;
 import com.tmob.t24.model.NewsDetailsResult;
@@ -18,7 +17,6 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
 
     private WebServiceRequestAsync requestAsync;
     private NewsDetailsPagerAdapter newsDetailsPagerAdapter;
-    private LayoutInflater layoutInflater;
 
     private ArrayList<NewsObject> newsDetailsPagerList;
 
@@ -28,8 +26,6 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_details);
-
-        layoutInflater = LayoutInflater.from(this);
 
         newsDetailsViewPager = (ViewPager) findViewById(R.id.news_details_view_pager);
 
