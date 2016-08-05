@@ -16,7 +16,6 @@ import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CategoryNewsActivity extends BaseActivity {
 

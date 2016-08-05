@@ -13,6 +13,7 @@ import com.squareup.picasso.Picasso;
 import com.tmob.t24.R;
 import com.tmob.t24.model.NewsObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,9 +24,9 @@ public class NewsAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
 
-    private List<NewsObject> newsList;
+    private ArrayList<NewsObject> newsList;
 
-    public NewsAdapter(Context context, List<NewsObject> newsList) {
+    public NewsAdapter(Context context, ArrayList<NewsObject> newsList) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.newsList = newsList;

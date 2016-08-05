@@ -21,6 +21,7 @@ import com.tmob.t24.view.CustomViewPager;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity {
@@ -29,8 +30,8 @@ public class MainActivity extends BaseActivity {
     LastNewsPagerAdapter lastNewsPagerAdapter;
     private NewsAdapter newsAdapter;
 
-    private List<NewsObject> lastNewsList;
-    private List<NewsObject> newsList;
+    private ArrayList<NewsObject> lastNewsList;
+    private ArrayList<NewsObject> newsList;
 
     ListView newsListView;
 

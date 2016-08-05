@@ -2,8 +2,11 @@ package com.tmob.t24.news_details;
 
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 
 import com.tmob.t24.R;
+import com.tmob.t24.model.NewsDetailsResult;
 import com.tmob.t24.model.NewsObject;
 import com.tmob.t24.utils.BaseActivity;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
@@ -11,12 +14,13 @@ import com.tmob.t24.webservice.WebServiceResponseListener;
 
 import java.util.ArrayList;
 
-public class NewsDetailsActivity extends BaseActivity {
+public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPageChangeListener {
 
     private WebServiceRequestAsync requestAsync;
     private NewsDetailsPagerAdapter newsDetailsPagerAdapter;
+    private LayoutInflater layoutInflater;
 
-    private ArrayList<NewsObject> categoryNewsIdList;
+    private ArrayList<NewsObject> newsDetailsPagerList;
 
     private ViewPager newsDetailsViewPager;
 
@@ -25,14 +29,25 @@ public class NewsDetailsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_details);
 
+        layoutInflater = LayoutInflater.from(this);
+
         newsDetailsViewPager = (ViewPager) findViewById(R.id.news_details_view_pager);
 
         int choosenNewsPosition = getIntent().getExtras().getInt("position");
-        categoryNewsIdList = getIntent().getParcelableArrayListExtra("categoryNewsIdList");
+        newsDetailsPagerList = getIntent().getParcelableArrayListExtra("categoryNewsIdList");
+
+        newsDetailsPagerAdapter = new NewsDetailsPagerAdapter(this, newsDetailsPagerList);
+        newsDetailsViewPager.addOnPageChangeListener(this);
+        newsDetailsViewPager.setAdapter(newsDetailsPagerAdapter);
+        newsDetailsViewPager.setCurrentItem(choosenNewsPosition);
     }
 
     private void getNewsDetailsResponse(String newsId, int position) {
-
+        requestAsync = new WebServiceRequestAsync(this, new NewsDetailsResponseListener(position));
+        Bundle newsDetailsBundle = new Bundle();
+        newsDetailsBundle.putString("story", newsId);
+        requestAsync.setParams(newsDetailsBundle);
+        requestAsync.execute(WebServiceRequestAsync.GET_CATEGORY_STORY_DETAILS);
     }
 
     private class NewsDetailsResponseListener implements WebServiceResponseListener {
@@ -45,7 +60,33 @@ public class NewsDetailsActivity extends BaseActivity {
 
         @Override
         public void onResponse(String jsonString) {
-
+            if (!TextUtils.isEmpty(jsonString)) {
+                NewsDetailsResult newsDetailsResult = gson.fromJson(jsonString, NewsDetailsResult.class);
+                if (newsDetailsResult.getResult()) {
+                    NewsObject tempNewsObject = newsDetailsResult.getData();
+                    newsDetailsPagerList.set(position, tempNewsObject);
+                    newsDetailsPagerAdapter.notifyDataSetChanged();
+                }
+            }
         }
     }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        NewsObject newsObject = newsDetailsPagerList.get(position);
+        if (TextUtils.isEmpty(newsObject.getText())) {
+            getNewsDetailsResponse(newsObject.getId(), position);
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
 }

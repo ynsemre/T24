@@ -3,6 +3,7 @@ package com.tmob.t24.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -42,10 +43,9 @@ public class NewsObject implements Parcelable {
     @SerializedName("publishingDate")
     @Expose
     private String publishingDate;
-
     private Integer loadingVisibility = View.GONE;
 
-    
+
 
     /**
      * @return The id
@@ -101,6 +101,42 @@ public class NewsObject implements Parcelable {
      */
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    /**
+     *
+     * @return
+     * The text
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     *
+     * @param text
+     * The text
+     */
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    /**
+     *
+     * @return
+     * The author
+     */
+    public Author getAuthor() {
+        return author;
+    }
+
+    /**
+     *
+     * @param author
+     * The author
+     */
+    public void setAuthor(Author author) {
+        this.author = author;
     }
 
     /**
