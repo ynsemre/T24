@@ -7,11 +7,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.tmob.t24.BaseActivity;
 import com.tmob.t24.R;
 import com.tmob.t24.model.NewsObject;
 import com.tmob.t24.model.NewsResult;
 import com.tmob.t24.news_details.NewsDetailsActivity;
-import com.tmob.t24.BaseActivity;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
@@ -33,8 +33,8 @@ public class CategoryNewsActivity extends BaseActivity {
         setContentView(R.layout.activity_category_news);
 
         Bundle categoryBundle = getIntent().getExtras();
-        //choosenCategoryId = categoryBundle.getString("categoryId");
-        choosenCategoryId = "19";
+        choosenCategoryId = categoryBundle.getString("categoryId");
+        //choosenCategoryId = "19";
 
         categoryNewsListView = (ListView) findViewById(R.id.category_news_list_view);
         categoryNewsListView.setOnItemClickListener(categoryNewsListItemClickListener);

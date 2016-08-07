@@ -36,6 +36,8 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
         newsDetailsViewPager.addOnPageChangeListener(this);
         newsDetailsViewPager.setAdapter(newsDetailsPagerAdapter);
         newsDetailsViewPager.setCurrentItem(choosenNewsPosition);
+        if (newsDetailsPagerList != null && newsDetailsPagerList.size() > 0)
+            newsDetailsViewPager.setOffscreenPageLimit(newsDetailsPagerList.size() - 1);
     }
 
     private void getNewsDetailsResponse(String newsId, int position) {

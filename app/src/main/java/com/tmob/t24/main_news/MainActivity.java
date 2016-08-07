@@ -1,5 +1,6 @@
 package com.tmob.t24.main_news;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -10,11 +11,13 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.tmob.t24.R;
+import com.tmob.t24.category_news.CategoryNewsActivity;
 import com.tmob.t24.model.Category;
 import com.tmob.t24.model.CategoryResult;
 import com.tmob.t24.model.NewsObject;
@@ -22,13 +25,14 @@ import com.tmob.t24.model.NewsResult;
 import com.tmob.t24.BaseActivity;
 import com.tmob.t24.view.CirclePageIndicator;
 import com.tmob.t24.view.CustomViewPager;
+import com.tmob.t24.view.NoDefaultSpinner;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
 
     private WebServiceRequestAsync requestAsync;
     LastNewsPagerAdapter lastNewsPagerAdapter;
@@ -188,10 +192,11 @@ public class MainActivity extends BaseActivity {
                         arrCategories[i] = categoryList.get(i).getAlias();
                     }
                     View actionView = getSupportActionBar().getCustomView();
-                    Spinner spinner = (Spinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
+                    NoDefaultSpinner spinner = (NoDefaultSpinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, arrCategories);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spinner.setAdapter(adapter);
+                    spinner.setOnItemSelectedListener(MainActivity.this);
                 }
             }
         }
@@ -265,4 +270,17 @@ public class MainActivity extends BaseActivity {
 
         }
     };
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Intent categoryListIntent = new Intent(MainActivity.this, CategoryNewsActivity.class);
+        String categoryId = categoryList.get(position).getId();
+        categoryListIntent.putExtra("categoryId", categoryId);
+        startActivity(categoryListIntent);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }
