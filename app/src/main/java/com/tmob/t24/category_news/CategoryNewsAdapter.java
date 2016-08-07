@@ -1,6 +1,7 @@
 package com.tmob.t24.category_news;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +65,7 @@ public class CategoryNewsAdapter extends BaseAdapter {
         NewsObject newsObject = newsObjectList.get(position);
         String imagePath = "http:" + newsObject.getImages().getPage();
         Picasso.with(context).load(imagePath).placeholder(R.drawable.placeholder) .into(viewHolder.imgNewsImage);
-        viewHolder.txtTitle.setText(newsObject.getTitle());
+        viewHolder.txtTitle.setText(Html.fromHtml(newsObject.getTitle()));
 
         viewHolder.pnlLoading.setVisibility(newsObject.getLoadingVisibility());
 

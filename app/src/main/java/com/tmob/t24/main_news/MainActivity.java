@@ -10,12 +10,16 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.tmob.t24.R;
+import com.tmob.t24.model.Category;
+import com.tmob.t24.model.CategoryResult;
 import com.tmob.t24.model.NewsObject;
 import com.tmob.t24.model.NewsResult;
-import com.tmob.t24.utils.BaseActivity;
+import com.tmob.t24.BaseActivity;
 import com.tmob.t24.view.CirclePageIndicator;
 import com.tmob.t24.view.CustomViewPager;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
@@ -32,6 +36,8 @@ public class MainActivity extends BaseActivity {
 
     private ArrayList<NewsObject> lastNewsList;
     private ArrayList<NewsObject> newsList;
+    private List<Category> categoryList;
+    private String[] arrCategories;
 
     ListView newsListView;
 
@@ -49,6 +55,8 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setActionBar();
 
         newsListView = (ListView) findViewById(R.id.news_list_view);
         newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -84,9 +92,14 @@ public class MainActivity extends BaseActivity {
         lastNewsPager.setOnSwipeOutListener(lastNewsPagerSwipeOutListener);
 
         if (cd.isConnectingToInternet()) {
+            getCategoryList();
             getNews(1, false);
             getNews(newsPageIndex, false);
         }
+    }
+
+    private void setActionBar() {
+        setActionBar(R.layout.actionbar_main_activity);
     }
 
     private void getNews(int pageIndex, boolean isRefreshing) {
@@ -154,6 +167,35 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
+
+    private void getCategoryList() {
+        requestAsync = new WebServiceRequestAsync(this, categoryListResponseListener);
+        Bundle categoryBundle = new Bundle();
+        categoryBundle.putString("type", "story");
+        requestAsync.setParams(categoryBundle);
+        requestAsync.execute(WebServiceRequestAsync.GET_CATEGORIES);
+    }
+
+    private WebServiceResponseListener categoryListResponseListener = new WebServiceResponseListener() {
+        @Override
+        public void onResponse(String jsonString) {
+            if (!TextUtils.isEmpty(jsonString)) {
+                CategoryResult categoryResult = gson.fromJson(jsonString, CategoryResult.class);
+                if (categoryResult.getResult()) {
+                    categoryList = categoryResult.getData();
+                    arrCategories = new String[categoryList.size()];
+                    for (int i = 0; i < categoryList.size(); i++) {
+                        arrCategories[i] = categoryList.get(i).getAlias();
+                    }
+                    View actionView = getSupportActionBar().getCustomView();
+                    Spinner spinner = (Spinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, arrCategories);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    spinner.setAdapter(adapter);
+                }
+            }
+        }
+    };
 
     private Runnable lastNewsPageRunnable = new Runnable() {
         @Override

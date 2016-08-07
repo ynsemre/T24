@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 
 import com.google.gson.Gson;
 import com.tmob.t24.dialog.CustomAlertDialog;
-import com.tmob.t24.utils.BaseActivity;
 import com.tmob.t24.utils.ConnectionDetector;
 
 public class BaseFragment extends Fragment {

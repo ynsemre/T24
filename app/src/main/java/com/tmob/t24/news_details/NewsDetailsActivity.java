@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import com.tmob.t24.R;
 import com.tmob.t24.model.NewsDetailsResult;
 import com.tmob.t24.model.NewsObject;
-import com.tmob.t24.utils.BaseActivity;
+import com.tmob.t24.BaseActivity;
 import com.tmob.t24.webservice.WebServiceRequestAsync;
 import com.tmob.t24.webservice.WebServiceResponseListener;
 
