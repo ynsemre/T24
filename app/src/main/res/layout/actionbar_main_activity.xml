@@ -28,7 +28,7 @@
 
         <com.tmob.t24.view.NoDefaultSpinner
             android:id="@+id/actionbar_category_choice_spinner"
-            android:layout_width="105dp"
+            android:layout_width="109dp"
             android:layout_height="match_parent"
             android:layout_gravity="right"
             android:prompt="@string/category_menu_text" />

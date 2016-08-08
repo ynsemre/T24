@@ -6,8 +6,10 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -93,12 +95,21 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         });
 
         setHeaderView();
-        //lastNewsPager.setOnSwipeOutListener(lastNewsPagerSwipeOutListener);
+        lastNewsPager.setOnSwipeOutListener(lastNewsPagerSwipeOutListener);
 
         if (cd.isConnectingToInternet()) {
             getCategoryList();
             getNews(1, false);
             getNews(newsPageIndex, false);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (lastNewsList != null && lastNewsList.size() > 0 && newsList != null && newsList.size() > 0) {
+            lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
+            lastNewsPageHandler.postDelayed(refreshNewsRunnable, 12000);
         }
     }
 
@@ -158,7 +169,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             if (!TextUtils.isEmpty(jsonString)) {
                 NewsResult newsResult = gson.fromJson(jsonString, NewsResult.class);
                 if (newsResult.getResult()) {
-                    if (pageIndex == 1) {
+                    if (pageIndex == 1 || pageIndex == 10) {
                         if (!isRefreshing) {
                             lastNewsList = newsResult.getData();
                             lastNewsId = lastNewsList.get(0).getId();
@@ -166,13 +177,16 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                             lastNewsPager.setAdapter(lastNewsPagerAdapter);
                             circlePageIndicator.setViewPager(lastNewsPager);
                             newsListView.addHeaderView(headerView, null, false);
-                            //lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
+                            lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
                         } else {
-                            currentLastNewsPage = 0;
-                            lastNewsList = newsResult.getData();
-                            lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
-                            lastNewsPager.setAdapter(lastNewsPagerAdapter);
-                            circlePageIndicator.setViewPager(lastNewsPager);
+                            if (!TextUtils.isEmpty(lastNewsId) && !lastNewsId.equals(newsResult.getData().get(0).getId())) {
+                                currentLastNewsPage = 0;
+                                lastNewsList = newsResult.getData();
+                                lastNewsId = lastNewsList.get(0).getId();
+                                lastNewsPagerAdapter.notifyDataSetChanged();
+                                lastNewsPager.setCurrentItem(0);
+                                showToastMessage("Yeni Haberler Var");
+                            }
                         }
                     } else {
                         int totalPages = newsResult.getPaging().getPages();
@@ -245,6 +259,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private Runnable lastNewsPageRunnable = new Runnable() {
         @Override
         public void run() {
+            Log.i("Path", "LASTRUNNABLE");
             if (currentLastNewsPage < 9)
                 lastNewsPager.setCurrentItem(currentLastNewsPage + 1, true);
             else
@@ -281,7 +296,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         startActivity(lastNewsIntent);
     }
 
-    private class LastNewsPagerAdapter extends FragmentPagerAdapter {
+    private class LastNewsPagerAdapter extends FragmentStatePagerAdapter {
 
         public LastNewsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -354,5 +369,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    protected void onStop() {
+        lastNewsPageHandler.removeCallbacks(lastNewsPageRunnable);
+        lastNewsPageHandler.removeCallbacks(refreshNewsRunnable);
+        super.onStop();
     }
 }

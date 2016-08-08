@@ -57,7 +57,8 @@ public class NewsAdapter extends BaseAdapter {
             viewHolder = new ViewHolder();
             viewHolder.pnlLoading = (FrameLayout) convertView.findViewById(R.id.pnl_news_loading);
             viewHolder.txtTitle = (TextView) convertView.findViewById(R.id.txt_item_news_title);
-            viewHolder.imgNewsImage = (ImageView)convertView.findViewById(R.id.img_item_news_image);
+            viewHolder.txtExcerpt = (TextView) convertView.findViewById(R.id.txt_item_news_excerpt);
+            viewHolder.imgNewsImage = (ImageView) convertView.findViewById(R.id.img_item_news_image);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -65,8 +66,9 @@ public class NewsAdapter extends BaseAdapter {
 
         NewsObject newsObject = newsList.get(position);
         String imagePath = "http:" + newsObject.getImages().getBox();
-        Picasso.with(context).load(imagePath).placeholder(R.drawable.placeholder) .into(viewHolder.imgNewsImage);
+        Picasso.with(context).load(imagePath).placeholder(R.drawable.placeholder).into(viewHolder.imgNewsImage);
         viewHolder.txtTitle.setText(Html.fromHtml(newsObject.getTitle()));
+        viewHolder.txtExcerpt.setText(Html.fromHtml(newsObject.getExcerpt()));
 
         viewHolder.pnlLoading.setVisibility(newsObject.getLoadingVisibility());
 
@@ -76,6 +78,7 @@ public class NewsAdapter extends BaseAdapter {
     private class ViewHolder {
         FrameLayout pnlLoading;
         TextView txtTitle;
+        TextView txtExcerpt;
         ImageView imgNewsImage;
     }
 }
