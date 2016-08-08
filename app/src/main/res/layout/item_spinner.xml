@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TextView
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/txt_spinner"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/SpinnerTextStyle"
+    android:paddingBottom="5dp"
     android:paddingTop="5dp"
-    android:paddingBottom="5dp"/>
+    android:textColor="@color/white" />

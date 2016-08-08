@@ -15,15 +15,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 
+import com.tmob.t24.BaseActivity;
 import com.tmob.t24.R;
 import com.tmob.t24.category_news.CategoryNewsActivity;
 import com.tmob.t24.model.Category;
 import com.tmob.t24.model.CategoryResult;
 import com.tmob.t24.model.NewsObject;
 import com.tmob.t24.model.NewsResult;
-import com.tmob.t24.BaseActivity;
+import com.tmob.t24.news_details.NewsDetailsActivity;
 import com.tmob.t24.view.CirclePageIndicator;
 import com.tmob.t24.view.CustomViewPager;
 import com.tmob.t24.view.NoDefaultSpinner;
@@ -33,7 +33,7 @@ import com.tmob.t24.webservice.WebServiceResponseListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener {
 
     private WebServiceRequestAsync requestAsync;
     LastNewsPagerAdapter lastNewsPagerAdapter;
@@ -66,6 +66,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         setActionBar();
 
         newsListView = (ListView) findViewById(R.id.news_list_view);
+        newsListView.setOnItemClickListener(this);
         newsListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -116,7 +117,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private void initializeActionBarComponents() {
         View actionView = getSupportActionBar().getCustomView();
         NoDefaultSpinner spinner = (NoDefaultSpinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, arrCategories);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, R.layout.item_spinner, arrCategories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(MainActivity.this);
@@ -167,6 +168,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                             newsListView.addHeaderView(headerView, null, false);
                             //lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
                         } else {
+                            currentLastNewsPage = 0;
                             lastNewsList = newsResult.getData();
                             lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
                             lastNewsPager.setAdapter(lastNewsPagerAdapter);
@@ -268,7 +270,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         String imageUrl = lastNewsList.get(position).getImages().getPage();
         pagerBundle.putString("newsTitle", newsTitle);
         pagerBundle.putString("imageUrl", imageUrl);
+        pagerBundle.putInt("position", position);
         return pagerBundle;
+    }
+
+    public void openLastNewsDetails(int position) {
+        Intent lastNewsIntent = new Intent(MainActivity.this, NewsDetailsActivity.class);
+        lastNewsIntent.putExtra("position", position);
+        lastNewsIntent.putParcelableArrayListExtra("categoryNewsIdList", lastNewsList);
+        startActivity(lastNewsIntent);
     }
 
     private class LastNewsPagerAdapter extends FragmentPagerAdapter {
@@ -294,6 +304,14 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         public int getItemPosition(Object object) {
             return POSITION_NONE;
         }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent newsListIntent = new Intent(MainActivity.this, NewsDetailsActivity.class);
+        newsListIntent.putExtra("position", position - 1);
+        newsListIntent.putParcelableArrayListExtra("categoryNewsIdList", newsList);
+        startActivity(newsListIntent);
     }
 
     private CustomViewPager.OnSwipeOutListener lastNewsPagerSwipeOutListener = new CustomViewPager.OnSwipeOutListener() {

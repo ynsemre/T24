@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.tmob.t24.BaseActivity;
 import com.tmob.t24.R;
@@ -23,6 +25,7 @@ public class CategoryNewsActivity extends BaseActivity {
     private CategoryNewsAdapter categoryNewsAdapter;
 
     private ListView categoryNewsListView;
+    private TextView txtCategoryAlias;
 
     private ArrayList<NewsObject> categoryNewsList;
     private String choosenCategoryId;
@@ -31,6 +34,8 @@ public class CategoryNewsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_news);
+
+        setActionBar();
 
         Bundle categoryBundle = getIntent().getExtras();
         choosenCategoryId = categoryBundle.getString("categoryId");
@@ -41,6 +46,20 @@ public class CategoryNewsActivity extends BaseActivity {
 
         if (cd.isConnectingToInternet())
             getCategoryStoriesListResponse(choosenCategoryId);
+    }
+
+    private void setActionBar() {
+        setActionBar(R.layout.actionbar_category_news_activity);
+
+        View actionView = getSupportActionBar().getCustomView();
+        LinearLayout pnlBack = (LinearLayout) actionView.findViewById(R.id.pnl_category_back);
+        pnlBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        txtCategoryAlias = (TextView) actionView.findViewById(R.id.txt_actionbar_category_title);
     }
 
     private void getCategoryStoriesListResponse(String categoryId) {
@@ -60,6 +79,8 @@ public class CategoryNewsActivity extends BaseActivity {
                 if (categoryNewsResult.getResult()) {
                     if (categoryNewsResult.getData() != null && categoryNewsResult.getData().size() > 0) {
                         categoryNewsList = categoryNewsResult.getData();
+                        String categoryName = categoryNewsList.get(0).getCategory().getName();
+                        txtCategoryAlias.setText(categoryName);
                         categoryNewsAdapter = new CategoryNewsAdapter(CategoryNewsActivity.this, categoryNewsList);
                         categoryNewsListView.setAdapter(categoryNewsAdapter);
                     }
