@@ -22,15 +22,16 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_weight="2.5"
         android:gravity="right"
         android:orientation="horizontal">
 
         <com.tmob.t24.view.NoDefaultSpinner
             android:id="@+id/actionbar_category_choice_spinner"
-            android:layout_width="109dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="right"
+            android:gravity="right"
             android:prompt="@string/category_menu_text" />
 
         <ImageView
