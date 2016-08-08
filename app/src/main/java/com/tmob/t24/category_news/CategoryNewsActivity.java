@@ -46,6 +46,8 @@ public class CategoryNewsActivity extends BaseActivity {
 
         if (cd.isConnectingToInternet())
             getCategoryStoriesListResponse(choosenCategoryId);
+        else
+            showMessage(resources.getString(R.string.AlertDialog_NETWORK_CONNECTION_ERROR));
     }
 
     private void setActionBar() {
@@ -75,15 +77,21 @@ public class CategoryNewsActivity extends BaseActivity {
         @Override
         public void onResponse(String jsonString) {
             if (!TextUtils.isEmpty(jsonString)) {
-                NewsResult categoryNewsResult = gson.fromJson(jsonString, NewsResult.class);
-                if (categoryNewsResult.getResult()) {
-                    if (categoryNewsResult.getData() != null && categoryNewsResult.getData().size() > 0) {
-                        categoryNewsList = categoryNewsResult.getData();
-                        String categoryName = categoryNewsList.get(0).getCategory().getName();
-                        txtCategoryAlias.setText(categoryName);
-                        categoryNewsAdapter = new CategoryNewsAdapter(CategoryNewsActivity.this, categoryNewsList);
-                        categoryNewsListView.setAdapter(categoryNewsAdapter);
+                try {
+                    NewsResult categoryNewsResult = gson.fromJson(jsonString, NewsResult.class);
+                    if (categoryNewsResult.getResult()) {
+                        if (categoryNewsResult.getData() != null && categoryNewsResult.getData().size() > 0) {
+                            categoryNewsList = categoryNewsResult.getData();
+                            String categoryName = categoryNewsList.get(0).getCategory().getName();
+                            txtCategoryAlias.setText(categoryName);
+                            categoryNewsAdapter = new CategoryNewsAdapter(CategoryNewsActivity.this, categoryNewsList);
+                            categoryNewsListView.setAdapter(categoryNewsAdapter);
+                        }
+                    } else {
+                        showMessage("Sunucudan cevap alınamıyor");
                     }
+                } catch (Exception e) {
+                    showMessage(e.toString());
                 }
             }
         }

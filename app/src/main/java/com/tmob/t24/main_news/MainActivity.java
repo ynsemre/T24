@@ -149,10 +149,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         imgRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lastNewsPageHandler.removeCallbacks(lastNewsPageRunnable);
-                lastNewsPageHandler.removeCallbacks(refreshNewsRunnable);
-                getNews(1, true);
-                getNews(2, true);
+                if (cd.isConnectingToInternet()) {
+                    lastNewsPageHandler.removeCallbacks(lastNewsPageRunnable);
+                    lastNewsPageHandler.removeCallbacks(refreshNewsRunnable);
+                    getNews(1, true);
+                    getNews(2, true);
+                }
             }
         });
     }
@@ -180,65 +182,69 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         @Override
         public void onResponse(String jsonString) {
             if (!TextUtils.isEmpty(jsonString)) {
-                NewsResult newsResult = gson.fromJson(jsonString, NewsResult.class);
-                if (newsResult.getResult()) {
-                    if (pageIndex == 1) {
-                        if (!isRefreshing) {
-                            lastNewsList = newsResult.getData();
-                            lastNewsId = lastNewsList.get(0).getId();
-                            lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
-                            lastNewsPager.setAdapter(lastNewsPagerAdapter);
-                            circlePageIndicator.setViewPager(lastNewsPager);
-                            newsListView.addHeaderView(headerView, null, false);
-                            lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
-                        } else {
-                            if (!TextUtils.isEmpty(lastNewsId) && !lastNewsId.equals(newsResult.getData().get(0).getId())) {
-                                currentLastNewsPage = 0;
+                try {
+                    NewsResult newsResult = gson.fromJson(jsonString, NewsResult.class);
+                    if (newsResult.getResult()) {
+                        if (pageIndex == 1) {
+                            if (!isRefreshing) {
                                 lastNewsList = newsResult.getData();
                                 lastNewsId = lastNewsList.get(0).getId();
-                                lastNewsPagerAdapter.notifyDataSetChanged();
-                                lastNewsPager.setCurrentItem(0);
-                                showToastMessage("Yeni Haberler Var");
+                                lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
+                                lastNewsPager.setAdapter(lastNewsPagerAdapter);
+                                circlePageIndicator.setViewPager(lastNewsPager);
+                                newsListView.addHeaderView(headerView, null, false);
+                                lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
+                            } else {
+                                if (!TextUtils.isEmpty(lastNewsId) && !lastNewsId.equals(newsResult.getData().get(0).getId())) {
+                                    currentLastNewsPage = 0;
+                                    lastNewsList = newsResult.getData();
+                                    lastNewsId = lastNewsList.get(0).getId();
+                                    lastNewsPagerAdapter.notifyDataSetChanged();
+                                    lastNewsPager.setCurrentItem(0);
+                                    showToastMessage("Yeni Haberler Var");
+                                }
                             }
-                        }
-                    } else {
-                        int totalPages = newsResult.getPaging().getPages();
-                        if (pageIndex < totalPages) {
-                            newsPageIndex = pageIndex;
-                            canGetMoreNews = true;
-                        }
-                        if (!isRefreshing) {
-                            if (pageIndex == 2) {
+                        } else {
+                            int totalPages = newsResult.getPaging().getPages();
+                            if (pageIndex < totalPages) {
+                                newsPageIndex = pageIndex;
+                                canGetMoreNews = true;
+                            }
+                            if (!isRefreshing) {
+                                if (pageIndex == 2) {
+                                    newsList = newsResult.getData();
+                                    if (canGetMoreNews)
+                                        newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
+                                    newsAdapter = new NewsAdapter(MainActivity.this, newsList);
+                                    newsListView.setAdapter(newsAdapter);
+                                    lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
+                                } else {
+                                    newsList.get(newsList.size() - 1).setLoadingVisibility(View.GONE);
+                                    newsList.addAll(newsResult.getData());
+                                    if (canGetMoreNews)
+                                        newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            newsAdapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            } else {
+                                newsList.clear();
                                 newsList = newsResult.getData();
                                 if (canGetMoreNews)
                                     newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
                                 newsAdapter = new NewsAdapter(MainActivity.this, newsList);
                                 newsListView.setAdapter(newsAdapter);
                                 lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
-                            } else {
-                                newsList.get(newsList.size() - 1).setLoadingVisibility(View.GONE);
-                                newsList.addAll(newsResult.getData());
-                                if (canGetMoreNews)
-                                    newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        newsAdapter.notifyDataSetChanged();
-                                    }
-                                });
                             }
-                        } else {
-                            newsList.clear();
-                            newsList = newsResult.getData();
-                            if (canGetMoreNews)
-                                newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
-                            newsAdapter = new NewsAdapter(MainActivity.this, newsList);
-                            newsListView.setAdapter(newsAdapter);
-                            lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
                         }
+                    } else {
+                        showMessage("Sunucudan cevap alınamıyor!");
                     }
-                } else {
-
+                } catch (Exception e) {
+                    showMessage(e.toString());
                 }
             }
         }
@@ -256,14 +262,20 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         @Override
         public void onResponse(String jsonString) {
             if (!TextUtils.isEmpty(jsonString)) {
-                CategoryResult categoryResult = gson.fromJson(jsonString, CategoryResult.class);
-                if (categoryResult.getResult()) {
-                    categoryList = categoryResult.getData();
-                    arrCategories = new String[categoryList.size()];
-                    for (int i = 0; i < categoryList.size(); i++) {
-                        arrCategories[i] = categoryList.get(i).getAlias();
+                try {
+                    CategoryResult categoryResult = gson.fromJson(jsonString, CategoryResult.class);
+                    if (categoryResult.getResult()) {
+                        categoryList = categoryResult.getData();
+                        arrCategories = new String[categoryList.size()];
+                        for (int i = 0; i < categoryList.size(); i++) {
+                            arrCategories[i] = categoryList.get(i).getAlias();
+                        }
+                        initializeActionBarComponents();
+                    } else {
+                        showMessage("Sunucudan cevap alınamıyor");
                     }
-                    initializeActionBarComponents();
+                } catch (Exception e) {
+                    showMessage(e.toString());
                 }
             }
         }

@@ -53,7 +53,8 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
             newsDetailsViewPager.setOffscreenPageLimit(newsDetailsPagerList.size() - 1);
 
         if (choosenNewsPosition == 0) {
-            getNewsDetailsResponse(newsDetailsPagerList.get(choosenNewsPosition).getId(), choosenNewsPosition);
+            if (cd.isConnectingToInternet())
+                getNewsDetailsResponse(newsDetailsPagerList.get(choosenNewsPosition).getId(), choosenNewsPosition);
             txtNewsCount.setText(choosenNewsPosition + 1 + " / " + newsDetailsPagerList.size());
         }
     }
@@ -96,12 +97,18 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
         @Override
         public void onResponse(String jsonString) {
             if (!TextUtils.isEmpty(jsonString)) {
-                NewsDetailsResult newsDetailsResult = gson.fromJson(jsonString, NewsDetailsResult.class);
-                if (newsDetailsResult.getResult()) {
-                    NewsObject tempNewsObject = newsDetailsResult.getData();
-                    newsDetailsPagerList.set(position, tempNewsObject);
-                    newsDetailsPagerAdapter.notifyDataSetChanged();
+                try {
+                    NewsDetailsResult newsDetailsResult = gson.fromJson(jsonString, NewsDetailsResult.class);
+                    if (newsDetailsResult.getResult()) {
+                        NewsObject tempNewsObject = newsDetailsResult.getData();
+                        newsDetailsPagerList.set(position, tempNewsObject);
+                        newsDetailsPagerAdapter.notifyDataSetChanged();
+                    }
+                } catch (Exception e) {
+                    showMessage(e.toString());
                 }
+            } else {
+                showMessage("Sunucudan cevap alınamıyor");
             }
         }
     }
@@ -116,7 +123,8 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
         txtNewsCount.setText(position + 1 + " / " + newsDetailsPagerList.size());
         NewsObject newsObject = newsDetailsPagerList.get(position);
         if (TextUtils.isEmpty(newsObject.getText())) {
-            getNewsDetailsResponse(newsObject.getId(), position);
+            if (cd.isConnectingToInternet())
+                getNewsDetailsResponse(newsObject.getId(), position);
         }
     }
 
