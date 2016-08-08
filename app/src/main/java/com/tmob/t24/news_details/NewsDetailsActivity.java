@@ -35,6 +35,13 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
 
         newsDetailsViewPager = (ViewPager) findViewById(R.id.news_details_view_pager);
 
+        /*
+        *newsDetailsPagingList and the choosen list item position
+        *is getting to show content as a viewpager item.
+        * At first list's NewsObject object's just has Id parameter.
+        * The other oarameters are replaced after webService request for
+        * choosen news.
+         */
         int choosenNewsPosition = getIntent().getExtras().getInt("position");
         newsDetailsPagerList = getIntent().getParcelableArrayListExtra("categoryNewsIdList");
 
@@ -65,6 +72,11 @@ public class NewsDetailsActivity extends BaseActivity implements ViewPager.OnPag
         txtNewsCount = (TextView) actionView.findViewById(R.id.txt_actionbar_category_title);
     }
 
+    /*
+    *When page scrolled to another page if NewsObject's text parameter is null,
+    * getNewsDetailsResponse method will be executed
+    *then replaced with the old item to show content of the news and store to reuse it.
+    */
     private void getNewsDetailsResponse(String newsId, int position) {
         requestAsync = new WebServiceRequestAsync(this, new NewsDetailsResponseListener(position));
         Bundle newsDetailsBundle = new Bundle();

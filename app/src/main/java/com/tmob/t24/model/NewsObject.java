@@ -8,6 +8,9 @@ import android.widget.LinearLayout;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+/* Making NewsObject oblect serializable,
+ provides passing NewsObject list via Intent to NewsDetailsActivity
+  */
 public class NewsObject implements Parcelable {
 
     @SerializedName("id")

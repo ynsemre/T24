@@ -5,11 +5,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
@@ -54,7 +52,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private View headerView;
 
     private boolean canGetMoreNews = false;
-    private final int REFRESHING_PERIOD = 12000;
+    private final int REFRESHING_PERIOD = 120000;
     private int newsPreLast;
     private int newsPageIndex = 2;
     private int currentLastNewsPage = 0;
@@ -75,6 +73,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
             }
 
+            //When news' list reaching at the bottom of list if there is more news next page news request will be executed.
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (canGetMoreNews) {
@@ -95,12 +94,20 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         });
 
         setHeaderView();
+
+        /**
+         * With customizing ViewPager, can detect user's swipe motion events
+         *and passing the info via inteface to onSwipeOutListener,
+         * it notifies that lastNewsPager reached to end.
+         * */
         lastNewsPager.setOnSwipeOutListener(lastNewsPagerSwipeOutListener);
 
         if (cd.isConnectingToInternet()) {
             getCategoryList();
             getNews(1, false);
             getNews(newsPageIndex, false);
+        } else {
+            showMessage(resources.getString(R.string.AlertDialog_NETWORK_CONNECTION_ERROR));
         }
     }
 
@@ -114,6 +121,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     }
 
     private void setHeaderView() {
+        //Showing last news inside of listView's headerView.
         LayoutInflater layoutInflater = getLayoutInflater();
         headerView = layoutInflater.inflate(R.layout.header_news_list_header, newsListView, false);
         circlePageIndicator = (CirclePageIndicator) headerView.findViewById(R.id.last_news_circle_indicator);
@@ -127,6 +135,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
     private void initializeActionBarComponents() {
         View actionView = getSupportActionBar().getCustomView();
+        /**
+         * With customizing SpinnerView as an NoDefaultSpinner,
+         *the purpose is putting hint at the beginning of MainActivity's creation
+         *instead of showing first category item.
+         * */
         NoDefaultSpinner spinner = (NoDefaultSpinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, R.layout.item_spinner, arrCategories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -149,7 +162,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         Bundle newsBundle = new Bundle();
         newsBundle.putString("paging", String.valueOf(pageIndex));
         requestAsync.setParams(newsBundle);
-        if (pageIndex <= 2)
+        if (pageIndex <= 2 && !isRefreshing)
             requestAsync.showDialog(true);
         requestAsync.execute(WebServiceRequestAsync.GET_STORIES_LIST);
     }
@@ -169,7 +182,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             if (!TextUtils.isEmpty(jsonString)) {
                 NewsResult newsResult = gson.fromJson(jsonString, NewsResult.class);
                 if (newsResult.getResult()) {
-                    if (pageIndex == 1 || pageIndex == 10) {
+                    if (pageIndex == 1) {
                         if (!isRefreshing) {
                             lastNewsList = newsResult.getData();
                             lastNewsId = lastNewsList.get(0).getId();
@@ -256,10 +269,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
     };
 
+    /** Called in 3 seconds period recursively to change lastNewsPager item position. */
     private Runnable lastNewsPageRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.i("Path", "LASTRUNNABLE");
             if (currentLastNewsPage < 9)
                 lastNewsPager.setCurrentItem(currentLastNewsPage + 1, true);
             else
@@ -268,11 +281,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
     };
 
+    /** Called in 120 seconds period recursively to check if there is new news. */
     private Runnable refreshNewsRunnable = new Runnable() {
         @Override
         public void run() {
             if (cd.isConnectingToInternet())
-                getNews(10, true);
+                getNews(1, true);
             else
                 showToastMessage(resources.getString(R.string.AlertDialog_NETWORK_CONNECTION_ERROR));
             lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
@@ -296,6 +310,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         startActivity(lastNewsIntent);
     }
 
+    /**With creating new LastNewsFragment we can pass the first page news' data
+     * to fragment and show as a lastNewsPager item.
+     */
     private class LastNewsPagerAdapter extends FragmentStatePagerAdapter {
 
         public LastNewsPagerAdapter(FragmentManager fm) {

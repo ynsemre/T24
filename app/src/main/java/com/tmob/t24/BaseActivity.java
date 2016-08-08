@@ -1,6 +1,5 @@
 package com.tmob.t24;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import com.tmob.t24.utils.SharedPreference;
 
 public class BaseActivity extends AppCompatActivity {
 
-    //private WebServiceRequestAsync requestAsync;
     public SharedPreference sharedPreference;
 
     public Resources resources;
@@ -31,12 +29,20 @@ public class BaseActivity extends AppCompatActivity {
         sharedPreference = SharedPreference.getInstance(this);
 
         resources = getResources();
+
+        /*
+        *In order to parse webservice's response json data to model classes
+        *which is generating at http://www.jsonschema2pojo.org/,
+        *Google's Gson library is using.
+         */
         gson = new Gson();
+
         context = this;
         cd = new ConnectionDetector(context);
         actionBar = getSupportActionBar();
     }
 
+    //Custom ActionBar is initialized with Layout resId
     public void setActionBar(int viewResId) {
         actionBar.show();
         actionBar.setDisplayShowCustomEnabled(true);
