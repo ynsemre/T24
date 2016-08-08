@@ -47,7 +47,8 @@ public class NewsDetailsPagerAdapter extends PagerAdapter {
         View newsBodyView = layoutInflater.inflate(R.layout.item_news_details_pager, null);
         TextView txtNewsTitle = (TextView) newsBodyView.findViewById(R.id.txt_news_details_title);
         WebView newsTextWebView = (WebView) newsBodyView.findViewById(R.id.item_news_details_text_webview);
-        //TextView txtNewsText = (TextView) newsBodyView.findViewById(R.id.txt_item_news_details_text);
+        TextView txtNewsPublishDate = (TextView) newsBodyView.findViewById(R.id.txt_item_news_details_publish_date);
+        TextView txtNewsExcerpt = (TextView) newsBodyView.findViewById(R.id.txt_item_news_details_excerpt);
         ImageView imgNewsImage = (ImageView) newsBodyView.findViewById(R.id.img_item_news_details_image);
         FrameLayout loadingProgressBarContainer = (FrameLayout) newsBodyView.findViewById(R.id.pnl_news_details_progressbar_container);
 
@@ -57,7 +58,8 @@ public class NewsDetailsPagerAdapter extends PagerAdapter {
             Picasso.with(context).load(imagePath).into(imgNewsImage);
             newsTextWebView.getSettings().setJavaScriptEnabled(true);
             newsTextWebView.loadDataWithBaseURL("", newsObject.getText(), "text/html", "UTF-8", "");
-            //txtNewsText.setText(Html.fromHtml(newsObject.getText()));
+            txtNewsPublishDate.setText(newsObject.getPublishingDate());
+            txtNewsExcerpt.setText(Html.fromHtml(newsObject.getExcerpt()));
             loadingProgressBarContainer.setVisibility(View.GONE);
         }
 

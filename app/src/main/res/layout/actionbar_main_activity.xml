@@ -35,8 +35,8 @@
 
         <ImageView
             android:id="@+id/img_actionbar_news_refresh"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_gravity="center|right"
             android:layout_marginLeft="10dp"
             android:src="@drawable/refresh_icon" />
