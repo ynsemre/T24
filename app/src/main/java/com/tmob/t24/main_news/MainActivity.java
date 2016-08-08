@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 
@@ -42,6 +43,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private ArrayList<NewsObject> newsList;
     private List<Category> categoryList;
     private String[] arrCategories;
+    private String lastNewsId;
 
     ListView newsListView;
 
@@ -50,6 +52,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private View headerView;
 
     private boolean canGetMoreNews = false;
+    private final int REFRESHING_PERIOD = 12000;
     private int newsPreLast;
     private int newsPageIndex = 2;
     private int currentLastNewsPage = 0;
@@ -88,12 +91,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             }
         });
 
-        LayoutInflater layoutInflater = getLayoutInflater();
-        headerView = layoutInflater.inflate(R.layout.header_news_list_header, newsListView, false);
-        circlePageIndicator = (CirclePageIndicator) headerView.findViewById(R.id.last_news_circle_indicator);
-        lastNewsPager = (CustomViewPager) headerView.findViewById(R.id.last_news_view_pager);
-        lastNewsPager.addOnPageChangeListener(lastNewsPageChangeListener);
-        lastNewsPager.setOnSwipeOutListener(lastNewsPagerSwipeOutListener);
+        setHeaderView();
+        //lastNewsPager.setOnSwipeOutListener(lastNewsPagerSwipeOutListener);
 
         if (cd.isConnectingToInternet()) {
             getCategoryList();
@@ -102,8 +101,34 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
     }
 
+    private void setHeaderView() {
+        LayoutInflater layoutInflater = getLayoutInflater();
+        headerView = layoutInflater.inflate(R.layout.header_news_list_header, newsListView, false);
+        circlePageIndicator = (CirclePageIndicator) headerView.findViewById(R.id.last_news_circle_indicator);
+        lastNewsPager = (CustomViewPager) headerView.findViewById(R.id.last_news_view_pager);
+        lastNewsPager.addOnPageChangeListener(lastNewsPageChangeListener);
+    }
+
     private void setActionBar() {
         setActionBar(R.layout.actionbar_main_activity);
+    }
+
+    private void initializeActionBarComponents() {
+        View actionView = getSupportActionBar().getCustomView();
+        NoDefaultSpinner spinner = (NoDefaultSpinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, arrCategories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(MainActivity.this);
+        ImageView imgRefresh = (ImageView) actionView.findViewById(R.id.img_actionbar_news_refresh);
+        imgRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lastNewsPageHandler.removeCallbacks(lastNewsPageRunnable);
+                lastNewsPageHandler.removeCallbacks(refreshNewsRunnable);
+                getNews(2, true);
+            }
+        });
     }
 
     private void getNews(int pageIndex, boolean isRefreshing) {
@@ -132,11 +157,27 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 NewsResult newsResult = gson.fromJson(jsonString, NewsResult.class);
                 if (newsResult.getResult()) {
                     if (pageIndex == 1) {
-                        lastNewsList = newsResult.getData();
-                        lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
-                        lastNewsPager.setAdapter(lastNewsPagerAdapter);
-                        circlePageIndicator.setViewPager(lastNewsPager);
-                        newsListView.addHeaderView(headerView, null, false);
+                        if (!isRefreshing) {
+                            lastNewsList = newsResult.getData();
+                            lastNewsId = lastNewsList.get(0).getId();
+                            lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
+                            lastNewsPager.setAdapter(lastNewsPagerAdapter);
+                            circlePageIndicator.setViewPager(lastNewsPager);
+                            newsListView.addHeaderView(headerView, null, false);
+                            //lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
+                        } else {
+                            if (!lastNewsId.equals(newsResult.getData().get(0).getId())) {
+                                //showToastMessage("aber");
+                                lastNewsList.clear();
+                                lastNewsList = newsResult.getData();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        lastNewsPagerAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        }
                     } else {
                         int totalPages = newsResult.getPaging().getPages();
                         if (pageIndex < totalPages) {
@@ -150,7 +191,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                                     newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
                                 newsAdapter = new NewsAdapter(MainActivity.this, newsList);
                                 newsListView.setAdapter(newsAdapter);
-                                //lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
+                                lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
                             } else {
                                 newsList.get(newsList.size() - 1).setLoadingVisibility(View.GONE);
                                 newsList.addAll(newsResult.getData());
@@ -163,6 +204,14 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                                     }
                                 });
                             }
+                        } else {
+                            newsList.clear();
+                            newsList = newsResult.getData();
+                            if (canGetMoreNews)
+                                newsList.get(newsList.size() - 1).setLoadingVisibility(View.VISIBLE);
+                            newsAdapter = new NewsAdapter(MainActivity.this, newsList);
+                            newsListView.setAdapter(newsAdapter);
+                            lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
                         }
                     }
                 } else {
@@ -191,12 +240,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                     for (int i = 0; i < categoryList.size(); i++) {
                         arrCategories[i] = categoryList.get(i).getAlias();
                     }
-                    View actionView = getSupportActionBar().getCustomView();
-                    NoDefaultSpinner spinner = (NoDefaultSpinner) actionView.findViewById(R.id.actionbar_category_choice_spinner);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, arrCategories);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinner.setAdapter(adapter);
-                    spinner.setOnItemSelectedListener(MainActivity.this);
+                    initializeActionBarComponents();
                 }
             }
         }
@@ -209,7 +253,18 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 lastNewsPager.setCurrentItem(currentLastNewsPage + 1, true);
             else
                 lastNewsPager.setCurrentItem(0);
-            //lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
+            lastNewsPageHandler.postDelayed(lastNewsPageRunnable, 3000);
+        }
+    };
+
+    private Runnable refreshNewsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (cd.isConnectingToInternet())
+                getNews(10, true);
+            else
+                showToastMessage(resources.getString(R.string.AlertDialog_NETWORK_CONNECTION_ERROR));
+            lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
         }
     };
 
@@ -239,6 +294,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         @Override
         public int getCount() {
             return lastNewsList.size();
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 
