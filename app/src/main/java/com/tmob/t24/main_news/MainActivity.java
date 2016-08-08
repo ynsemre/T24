@@ -126,6 +126,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             public void onClick(View v) {
                 lastNewsPageHandler.removeCallbacks(lastNewsPageRunnable);
                 lastNewsPageHandler.removeCallbacks(refreshNewsRunnable);
+                getNews(1, true);
                 getNews(2, true);
             }
         });
@@ -166,17 +167,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                             newsListView.addHeaderView(headerView, null, false);
                             //lastNewsPageHandler.postDelayed(refreshNewsRunnable, REFRESHING_PERIOD);
                         } else {
-                            if (!lastNewsId.equals(newsResult.getData().get(0).getId())) {
-                                //showToastMessage("aber");
-                                lastNewsList.clear();
-                                lastNewsList = newsResult.getData();
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        lastNewsPagerAdapter.notifyDataSetChanged();
-                                    }
-                                });
-                            }
+                            lastNewsList = newsResult.getData();
+                            lastNewsPagerAdapter = new LastNewsPagerAdapter(getSupportFragmentManager());
+                            lastNewsPager.setAdapter(lastNewsPagerAdapter);
+                            circlePageIndicator.setViewPager(lastNewsPager);
                         }
                     } else {
                         int totalPages = newsResult.getPaging().getPages();
